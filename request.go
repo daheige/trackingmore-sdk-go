@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,19 +13,12 @@ import (
 )
 
 var (
-	baseUrl    string
-	apiVersion string
+	baseUrl    = "https://api.trackingmore.com/"
+	apiVersion = "v4"
 )
 
-func init() {
-
-	baseUrl = "https://api.trackingmore.com/"
-
-	apiVersion = "v4"
-
-}
-
-func (client *Client) sendApiRequest(ctx context.Context, method, path string, queryParams interface{}, inputData interface{}, resultData interface{}) (*Response, error) {
+func (client *Client) sendApiRequest(ctx context.Context, method, path string, queryParams interface{},
+	inputData interface{}, resultData interface{}) (*Response, error) {
 	var body io.Reader
 	if inputData != nil {
 		jsonData, err := json.Marshal(inputData)
@@ -34,7 +28,7 @@ func (client *Client) sendApiRequest(ctx context.Context, method, path string, q
 		body = bytes.NewBuffer(jsonData)
 	}
 
-	requestUrl := baseUrl + apiVersion + path
+	requestUrl := fmt.Sprintf("%s%s%s", baseUrl, apiVersion, path)
 	req, err := http.NewRequestWithContext(ctx, method, requestUrl, body)
 	if err != nil {
 		return nil, err
@@ -56,16 +50,20 @@ func (client *Client) sendApiRequest(ctx context.Context, method, path string, q
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	respBody := new(bytes.Buffer)
-	respBody.ReadFrom(resp.Body)
+	_, err = respBody.ReadFrom(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	result := &Response{
 		Meta: Meta{},
 		Data: resultData,
 	}
-
 	err = json.Unmarshal([]byte(respBody.String()), result)
 	if err != nil {
 		return nil, err
@@ -81,8 +79,9 @@ func addStructParams(params interface{}, values *url.Values) error {
 		val = val.Elem()
 	}
 	if val.Kind() != reflect.Struct {
-		return fmt.Errorf("params must be a struct or a pointer to struct")
+		return errors.New("params must be a struct or a pointer to struct")
 	}
+
 	typ := val.Type()
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
@@ -90,11 +89,15 @@ func addStructParams(params interface{}, values *url.Values) error {
 		if tag == "" {
 			tag = field.Name
 		}
-		value := val.Field(i).Interface()
-		if value != reflect.Zero(val.Field(i).Type()).Interface() {
+
+		// Optimize the val fetch field reflection code here
+		valField := val.Field(i)
+		value := valField.Interface()
+		if value != reflect.Zero(valField.Type()).Interface() {
 			v.Add(tag, fmt.Sprintf("%v", value))
 		}
 	}
+
 	*values = v
 	return nil
 }
