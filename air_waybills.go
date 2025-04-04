@@ -2,7 +2,6 @@ package trackingmore
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"regexp"
 )
@@ -66,7 +65,7 @@ type AirWaybillParams struct {
 
 func (client *Client) CreateAnAirWayBill(ctx context.Context, params AirWaybillParams) (*Response, error) {
 	if params.AwbNumber == "" {
-		return nil, errors.New(ErrMissingAwbNumber)
+		return nil, ErrMissingAwbNumber
 	}
 
 	regexPattern := `^\d{3}[ -]?(\d{8})$`
@@ -76,7 +75,7 @@ func (client *Client) CreateAnAirWayBill(ctx context.Context, params AirWaybillP
 	}
 
 	if !matched {
-		return nil, errors.New(ErrInvalidAirWaybillFormat)
+		return nil, ErrInvalidAirWaybillFormat
 	}
 
 	var airWaybillItem AirWaybillItem

@@ -2,7 +2,6 @@ package trackingmore
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -36,7 +35,7 @@ func (client *Client) GetAllCouriers(ctx context.Context) (*Response, error) {
 
 func (client *Client) Detect(ctx context.Context, params DetectParams) (*Response, error) {
 	if params.TrackingNumber == "" {
-		return nil, errors.New(ErrMissingTrackingNumber)
+		return nil, ErrMissingTrackingNumber
 	}
 	var couriers []Courier
 	response, err := client.sendApiRequest(ctx, http.MethodPost, "/couriers/detect", nil, params, &couriers)

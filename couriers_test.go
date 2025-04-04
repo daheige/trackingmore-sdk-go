@@ -2,6 +2,7 @@ package trackingmore
 
 import (
 	"context"
+	"errors"
 	"testing"
 )
 
@@ -53,7 +54,7 @@ func TestDetect(t *testing.T) {
 	}
 
 	response, err = client.Detect(context.Background(), emptyParams)
-	if err == nil || err.Error() != ErrMissingTrackingNumber {
+	if err == nil || !errors.Is(err, ErrMissingTrackingNumber) {
 		t.Errorf("Expected ErrMissingTrackingNumber error, got %v", err)
 	}
 	if response != nil {

@@ -2,6 +2,7 @@ package trackingmore
 
 import (
 	"context"
+	"errors"
 	"testing"
 )
 
@@ -36,7 +37,7 @@ func TestCreateTracking(t *testing.T) {
 	}
 
 	response, err = client.CreateTracking(context.Background(), trackingNumberEmptyParams)
-	if err == nil || err.Error() != ErrMissingTrackingNumber {
+	if err == nil || !errors.Is(err, ErrMissingTrackingNumber) {
 		t.Errorf("Expected ErrMissingTrackingNumber error, got %v", err)
 	}
 	if response != nil {
@@ -49,7 +50,7 @@ func TestCreateTracking(t *testing.T) {
 	}
 
 	response, err = client.CreateTracking(context.Background(), courierCodeEmptyParams)
-	if err == nil || err.Error() != ErrMissingCourierCode {
+	if err == nil || !errors.Is(err, ErrMissingCourierCode) {
 		t.Errorf("Expected ErrMissingTrackingNumber error, got %v", err)
 	}
 	if response != nil {
@@ -120,9 +121,8 @@ func TestBatchCreateTrackings(t *testing.T) {
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
-	expectedError := ErrMaxTrackingNumbersExceeded
-	if err.Error() != expectedError {
-		t.Errorf("Expected error: %v, but got: %v", expectedError, err)
+	if !errors.Is(err, ErrMaxTrackingNumbersExceeded) {
+		t.Errorf("Expected error: %v, but got: %v", ErrMaxTrackingNumbersExceeded, err)
 	}
 
 	missingTrackingNumber := []CreateTrackingParams{
@@ -135,9 +135,8 @@ func TestBatchCreateTrackings(t *testing.T) {
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
-	expectedError = ErrMissingTrackingNumber
-	if err.Error() != expectedError {
-		t.Errorf("Expected error: %v, but got: %v", expectedError, err)
+	if !errors.Is(err, ErrMissingTrackingNumber) {
+		t.Errorf("Expected error: %v, but got: %v", ErrMissingTrackingNumber, err)
 	}
 
 	missingCourierCode := []CreateTrackingParams{
@@ -150,9 +149,8 @@ func TestBatchCreateTrackings(t *testing.T) {
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
-	expectedError = ErrMissingCourierCode
-	if err.Error() != expectedError {
-		t.Errorf("Expected error: %v, but got: %v", expectedError, err)
+	if !errors.Is(err, ErrMissingCourierCode) {
+		t.Errorf("Expected error: %v, but got: %v", ErrMissingCourierCode, err)
 	}
 }
 
@@ -187,9 +185,8 @@ func TestUpdateTrackingByID(t *testing.T) {
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
-	expectedError := ErrEmptyId
-	if err.Error() != expectedError {
-		t.Errorf("Expected error: %v, but got: %v", expectedError, err)
+	if !errors.Is(err, ErrEmptyId) {
+		t.Errorf("Expected error: %v, but got: %v", ErrEmptyId, err)
 	}
 }
 
@@ -220,9 +217,8 @@ func TestDeleteTrackingByID(t *testing.T) {
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
-	expectedError := ErrEmptyId
-	if err.Error() != expectedError {
-		t.Errorf("Expected error: %v, but got: %v", expectedError, err)
+	if !errors.Is(err, ErrEmptyId) {
+		t.Errorf("Expected error: %v, but got: %v", ErrEmptyId, err)
 	}
 }
 
@@ -254,8 +250,7 @@ func TestRetrackTrackingByID(t *testing.T) {
 		t.Error("Expected an error, but got nil")
 	}
 
-	expectedError := ErrEmptyId
-	if err.Error() != expectedError {
-		t.Errorf("Expected error: %v, but got: %v", expectedError, err)
+	if !errors.Is(err, ErrEmptyId) {
+		t.Errorf("Expected error: %v, but got: %v", ErrEmptyId, err)
 	}
 }

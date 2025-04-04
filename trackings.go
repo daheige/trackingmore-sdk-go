@@ -2,7 +2,6 @@ package trackingmore
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -225,10 +224,10 @@ type UpdateAfterResult struct {
 
 func (client *Client) CreateTracking(ctx context.Context, params CreateTrackingParams) (*Response, error) {
 	if params.TrackingNumber == "" {
-		return nil, errors.New(ErrMissingTrackingNumber)
+		return nil, ErrMissingTrackingNumber
 	}
 	if params.CourierCode == "" {
-		return nil, errors.New(ErrMissingCourierCode)
+		return nil, ErrMissingCourierCode
 	}
 	var tracking Tracking
 	response, err := client.sendApiRequest(ctx, http.MethodPost, "/trackings/create", nil, params, &tracking)
@@ -251,14 +250,14 @@ func (client *Client) GetTrackingResults(ctx context.Context, params GetTracking
 
 func (client *Client) BatchCreateTrackings(ctx context.Context, params []CreateTrackingParams) (*Response, error) {
 	if len(params) > 40 {
-		return nil, errors.New(ErrMaxTrackingNumbersExceeded)
+		return nil, ErrMaxTrackingNumbersExceeded
 	}
 	for _, item := range params {
 		if item.TrackingNumber == "" {
-			return nil, errors.New(ErrMissingTrackingNumber)
+			return nil, ErrMissingTrackingNumber
 		}
 		if item.CourierCode == "" {
-			return nil, errors.New(ErrMissingCourierCode)
+			return nil, ErrMissingCourierCode
 		}
 	}
 	var batchResults BatchResults
@@ -272,7 +271,7 @@ func (client *Client) BatchCreateTrackings(ctx context.Context, params []CreateT
 
 func (client *Client) UpdateTrackingByID(ctx context.Context, idString string, params UpdateTrackingParams) (*Response, error) {
 	if idString == "" {
-		return nil, errors.New(ErrEmptyId)
+		return nil, ErrEmptyId
 	}
 	var updateAfterItem UpdateAfterResult
 	response, err := client.sendApiRequest(ctx, http.MethodPut, "/trackings/update/"+idString, nil, params, &updateAfterItem)
@@ -285,7 +284,7 @@ func (client *Client) UpdateTrackingByID(ctx context.Context, idString string, p
 
 func (client *Client) DeleteTrackingByID(ctx context.Context, idString string) (*Response, error) {
 	if idString == "" {
-		return nil, errors.New(ErrEmptyId)
+		return nil, ErrEmptyId
 	}
 	var tracking Tracking
 	response, err := client.sendApiRequest(ctx, http.MethodDelete, "/trackings/delete/"+idString, nil, nil, &tracking)
@@ -298,7 +297,7 @@ func (client *Client) DeleteTrackingByID(ctx context.Context, idString string) (
 
 func (client *Client) RetrackTrackingByID(ctx context.Context, idString string) (*Response, error) {
 	if idString == "" {
-		return nil, errors.New(ErrEmptyId)
+		return nil, ErrEmptyId
 	}
 	var tracking Tracking
 	response, err := client.sendApiRequest(ctx, http.MethodPost, "/trackings/retrack/"+idString, nil, nil, &tracking)

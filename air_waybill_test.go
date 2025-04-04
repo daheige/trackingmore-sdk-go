@@ -2,6 +2,7 @@ package trackingmore
 
 import (
 	"context"
+	"errors"
 	"testing"
 )
 
@@ -34,7 +35,7 @@ func TestCreateAnAirWayBill(t *testing.T) {
 	}
 
 	response, err = client.CreateAnAirWayBill(context.Background(), invalidParams)
-	if err == nil || err.Error() != ErrMissingAwbNumber {
+	if err == nil || !errors.Is(err, ErrMissingAwbNumber) {
 		t.Errorf("Expected ErrMissingAwbNumber error, got %v", err)
 	}
 	if response != nil {
@@ -42,9 +43,8 @@ func TestCreateAnAirWayBill(t *testing.T) {
 	}
 
 	invalidParams.AwbNumber = "12345"
-
 	response, err = client.CreateAnAirWayBill(context.Background(), invalidParams)
-	if err == nil || err.Error() != ErrInvalidAirWaybillFormat {
+	if err == nil || !errors.Is(err, ErrInvalidAirWaybillFormat) {
 		t.Errorf("Expected ErrInvalidAirWaybillFormat error, got %v", err)
 	}
 	if response != nil {
