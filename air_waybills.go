@@ -7,6 +7,8 @@ import (
 	"regexp"
 )
 
+var regAirWayBill = regexp.MustCompile(`^\d{3}[ -]?(\d{8})$`)
+
 type AirWaybillItem struct {
 	AwbNumber        string   `json:"awb_number"`
 	AwbStatus        string   `json:"awb_status"`
@@ -69,12 +71,7 @@ func (client *Client) CreateAnAirWayBill(ctx context.Context, params AirWaybillP
 		return nil, errors.New(ErrMissingAwbNumber)
 	}
 
-	regexPattern := `^\d{3}[ -]?(\d{8})$`
-	matched, err := regexp.MatchString(regexPattern, params.AwbNumber)
-	if err != nil {
-		return nil, err
-	}
-
+	matched := regAirWayBill.MatchString(params.AwbNumber)
 	if !matched {
 		return nil, errors.New(ErrInvalidAirWaybillFormat)
 	}
